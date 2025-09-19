@@ -116,6 +116,13 @@ test(
     ]
 )
 test(
+    'check version info in zck_chunk_validate',
+    zck_chunk_validate,
+    args: [
+        '-V'
+    ]
+)
+test(
     'check version info in zckdlfs',
     zckdlfs,
     args: [

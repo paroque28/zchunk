@@ -73,6 +73,25 @@ zck_chunk_store = executable(
     install: true,
     c_args: preprocessor_defines
 )
+chunk_validate_sources = ['zck_chunk_validate.c', 'util_common.c']
+chunk_validate_deps = [argplib]
+if not openssl_dep.found()
+    chunk_validate_sources += [
+        'lib/hash/bundled/sha1/sha1.c',
+        'lib/hash/bundled/sha2/sha2.c',
+    ]
+else
+    chunk_validate_deps += openssl_dep
+endif
+zck_chunk_validate = executable(
+    'zck_chunk_validate',
+    chunk_validate_sources + extra_win_src,
+    include_directories: inc,
+    dependencies: chunk_validate_deps,
+    link_with: zcklib,
+    install: true,
+    c_args: preprocessor_defines
+)
 zckdlfs = executable(
     'zckdlfs',
     ['zck_dl_dir.c', 'util_common.c'] + extra_win_src,

@@ -94,6 +94,7 @@ if get_option('docs')
         'doc/zckdl.1',
         'doc/zckdlfs.1',
         'doc/zck_chunk_store.1',
+        'doc/zck_chunk_validate.1',
     ])
 endif
 

@@ -252,23 +252,23 @@ int main(int argc, char *argv[]) {
             exit(10);
         }
 
-            if(comp_size > 0) {
-                char *buffer = calloc(comp_size, 1);
-                if(buffer == NULL) {
-                    close(chunk_fd);
-                    free(chunk_path);
-                    free(prefix_dir);
-                    free(digest);
-                    free(hash_dir);
-                    exit(10);
-                }
-                ssize_t read_size =
+        if(comp_size > 0) {
+            char *buffer = calloc(comp_size, 1);
+            if(buffer == NULL) {
+                close(chunk_fd);
+                free(chunk_path);
+                free(prefix_dir);
+                free(digest);
+                free(hash_dir);
+                exit(10);
+            }
+            ssize_t read_size =
                 zck_get_chunk_comp_data(chunk, buffer, (size_t)comp_size);
-                if(read_size != comp_size) {
-                    if(read_size < 0)
-                        LOG_ERROR("%s", zck_get_error(zck));
-                    else
-                        LOG_ERROR(
+            if(read_size != comp_size) {
+                if(read_size < 0)
+                    LOG_ERROR("%s", zck_get_error(zck));
+                else
+                    LOG_ERROR(
                         "Chunk %lli size mismatch: expected %lli, read %lli\n",
                         (long long)zck_get_chunk_number(chunk),
                         (long long)comp_size,

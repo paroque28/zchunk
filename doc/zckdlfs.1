@@ -74,7 +74,9 @@ is the full chunk digest.
 The
 .Xr zck_chunk_store 1
 utility can populate a directory tree in this format from an existing
-zchunk file.
+zchunk file, and
+.Xr zck_chunk_validate 1
+can be used to confirm the integrity of transported chunks before importing them.
 .Sh EXIT STATUS
 .Ex -std
 .Sh EXAMPLES
@@ -85,6 +87,7 @@ Rebuild an image from chunks provided on a USB drive:
 .Xr unzck 1 ,
 .Xr zck 1 ,
 .Xr zck_chunk_store 1 ,
+.Xr zck_chunk_validate 1 ,
 .Xr zck_delta_size 1 ,
 .Xr zck_gen_zdict 1 ,
 .Xr zck_read_header 1

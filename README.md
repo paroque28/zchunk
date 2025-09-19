@@ -64,6 +64,11 @@ characters of the hexadecimal digest.  Any directory created with
 `zck_chunk_store` can be copied to removable media and later consumed by
 `zckdlfs`.
 
+To verify the integrity of an exported chunk directory, run:
+```
+zck_chunk_validate <chunk directory>
+```
+
 To read a zchunk header, run:
 ```
 zck_read_header <file>

@@ -63,7 +63,9 @@ contents are the compressed bytes that appear in the zchunk payload.
 .Pp
 This layout allows the chunk directory to be copied to removable media
 and later consumed by
-.Xr zckdlfs 1 .
+.Xr zckdlfs 1 .  Use
+.Xr zck_chunk_validate 1
+to verify the integrity of an existing chunk directory.
 .Sh EXIT STATUS
 .Ex -std
 .Sh EXAMPLES
@@ -71,6 +73,7 @@ Populate a chunk directory for a previously downloaded image:
 .Pp
 .Dl zck_chunk_store -o /var/lib/zchunk/chunks updates/rootfs.zck
 .Sh SEE ALSO
+.Xr zck_chunk_validate 1 ,
 .Xr zckdlfs 1 ,
 .Xr unzck 1 ,
 .Xr zck 1 ,
