@@ -48,6 +48,16 @@ To download a zchunk file, run:
 zckdl -s <source> <url of target>
 ```
 
+To export compressed chunks into a reusable cache, run:
+```
+zck_chunk_store <chunk-dir> <file.zck> [file.zck ...]
+```
+
+To rebuild a zchunk file from a cache of chunks, run:
+```
+zckdir --chunk-dir <chunk-dir> --header <header-file> <output.zck>
+```
+
 To read a zchunk header, run:
 ```
 zck_read_header <file>
@@ -90,6 +100,7 @@ your system.
 - [Format definition](zchunk_format.txt)
 - [Initial announcement](https://www.jdieter.net/posts/2018/04/30/introducing-zchunk)
 - [How zchunk works (with pretty pictures)](https://www.jdieter.net/posts/2018/05/31/what-is-zchunk)
+- [Offline chunk workflow](doc/offline-updates.md)
 
 
 ## License

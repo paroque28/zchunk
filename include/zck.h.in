@@ -346,6 +346,16 @@ const ZCK_PUBLIC_API char *zck_hash_name_from_type(int hash_type)
 /* Get any matching chunks from src and put them in the right place in tgt */
 bool ZCK_PUBLIC_API zck_copy_chunks(zckCtx *src, zckCtx *tgt)
     ZCK_WARN_UNUSED;
+/* Overwrite chunk location with zeros */
+bool ZCK_PUBLIC_API zck_zero_chunk(zckCtx *tgt, zckChunk *chunk)
+    ZCK_WARN_UNUSED;
+/* Import chunk contents from an open file descriptor */
+bool ZCK_PUBLIC_API zck_import_chunk_from_fd(zckCtx *tgt, zckChunk *chunk, int fd)
+    ZCK_WARN_UNUSED;
+/* Import chunk contents from a file path */
+bool ZCK_PUBLIC_API zck_import_chunk_from_path(zckCtx *tgt, zckChunk *chunk,
+                                              const char *path)
+    ZCK_WARN_UNUSED;
 /* Free zckRange */
 void ZCK_PUBLIC_API zck_range_free(zckRange **info);
 /* Get range string from start and end location */

@@ -108,6 +108,20 @@ test(
         '-V'
     ]
 )
+test(
+    'check version info in zck_chunk_store',
+    zck_chunk_store,
+    args: [
+        '-V'
+    ]
+)
+test(
+    'check version info in zckdir',
+    zckdir,
+    args: [
+        '-V'
+    ]
+)
 
 test(
     'check opening file with optional flags',
@@ -192,6 +206,18 @@ test(
         join_paths(file_path, 'LICENSE.header.new.nodict.fodt.zck'),
         join_paths(file_path, 'LICENSE.nodict.fodt.zck')
     ]
+)
+offline_script = files('offline_workflow.sh')
+test(
+    'offline chunk directory workflow',
+    find_program('sh'),
+    args: [
+        offline_script,
+        zck_chunk_store.full_path(),
+        zckdir.full_path(),
+        join_paths(file_path, 'LICENSE.dict.fodt.zck')
+    ],
+    is_parallel: false
 )
 test(
     'decompress previously generated auto-chunked file - nocomp',
