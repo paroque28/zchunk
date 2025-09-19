@@ -64,3 +64,21 @@ zckdl = executable(
     install: true,
     c_args: preprocessor_defines
 )
+zck_chunk_store = executable(
+    'zck_chunk_store',
+    ['zck_chunk_store.c', 'util_common.c'] + extra_win_src,
+    include_directories: inc,
+    dependencies: argplib,
+    link_with: zcklib,
+    install: true,
+    c_args: preprocessor_defines
+)
+zckdir = executable(
+    'zckdir',
+    ['zck_dir.c', 'util_common.c'] + extra_win_src,
+    include_directories: inc,
+    dependencies: argplib,
+    link_with: zcklib,
+    install: true,
+    c_args: preprocessor_defines
+)

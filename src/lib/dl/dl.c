@@ -30,8 +30,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <zck.h>
+
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 
 #include "zck_private.h"
 
@@ -58,7 +64,7 @@ static void clear_dl_regex(zckDL *dl) {
 }
 
 /* Write zeros to tgt->fd in location of tgt_idx */
-static bool zero_chunk(zckCtx *tgt, zckChunk *tgt_idx) {
+bool ZCK_PUBLIC_API zck_zero_chunk(zckCtx *tgt, zckChunk *tgt_idx) {
     char buf[BUF_SIZE] = {0};
     size_t to_read = tgt_idx->comp_length;
     if(!seek_data(tgt, tgt->data_offset + tgt_idx->start, SEEK_SET))
@@ -81,7 +87,7 @@ static bool set_chunk_valid(zckDL *dl) {
 
     int retval = validate_chunk(dl->tgt_check, ZCK_LOG_WARNING);
     if(retval < 1) {
-        if(!zero_chunk(dl->zck, dl->tgt_check))
+        if(!zck_zero_chunk(dl->zck, dl->tgt_check))
             return false;
         dl->tgt_check->valid = -1;
         return false;
@@ -153,7 +159,7 @@ static bool write_and_verify_chunk(zckCtx *src, zckCtx *tgt,
         pdigest = get_digest_string(digest, src_idx->digest_size);
         zck_log(ZCK_LOG_INFO, "Target hash: %s", pdigest);
         free(pdigest);
-        if(!zero_chunk(tgt, tgt_idx))
+        if(!zck_zero_chunk(tgt, tgt_idx))
             return false;
         tgt_idx->valid = -1;
     } else {
@@ -165,6 +171,109 @@ static bool write_and_verify_chunk(zckCtx *src, zckCtx *tgt,
     }
     free(digest);
     return true;
+}
+
+bool ZCK_PUBLIC_API zck_import_chunk_from_fd(zckCtx *tgt, zckChunk *tgt_idx,
+                                             int fd) {
+    VALIDATE_BOOL(tgt);
+
+    if(tgt_idx == NULL) {
+        set_error(tgt, "Invalid chunk reference");
+        return false;
+    }
+    if(fd < 0) {
+        set_error(tgt, "Invalid chunk file descriptor");
+        return false;
+    }
+
+    struct stat st = {0};
+    if(fstat(fd, &st) < 0) {
+        set_error(tgt, "Unable to stat chunk file: %s", strerror(errno));
+        return false;
+    }
+    if((size_t)st.st_size != tgt_idx->comp_length) {
+        set_error(tgt,
+                  "Chunk size mismatch (expected %llu, got %llu)",
+                  (long long unsigned) tgt_idx->comp_length,
+                  (long long unsigned) st.st_size);
+        return false;
+    }
+    if(lseek(fd, 0, SEEK_SET) < 0) {
+        set_error(tgt, "Unable to seek chunk file: %s", strerror(errno));
+        return false;
+    }
+    if(!seek_data(tgt, tgt->data_offset + tgt_idx->start, SEEK_SET))
+        return false;
+
+    zckHash check_hash = {0};
+    if(!hash_init(tgt, &check_hash, &(tgt->chunk_hash_type)))
+        return false;
+
+    static char buf[BUF_SIZE] = {0};
+    size_t to_read = tgt_idx->comp_length;
+    while(to_read > 0) {
+        size_t rb = BUF_SIZE;
+        if(rb > to_read)
+            rb = to_read;
+        ssize_t read_bytes = read(fd, buf, rb);
+        if(read_bytes < 0) {
+            set_error(tgt, "Unable to read chunk data: %s", strerror(errno));
+            return false;
+        }
+        if((size_t)read_bytes != rb) {
+            set_error(tgt, "Short read when importing chunk data");
+            return false;
+        }
+        if(!hash_update(tgt, &check_hash, buf, rb))
+            return false;
+        if(!write_data(tgt, tgt->fd, buf, rb))
+            return false;
+        to_read -= rb;
+    }
+    char *digest = hash_finalize(tgt, &check_hash);
+    bool success = false;
+    if(digest) {
+        if(memcmp(digest, tgt_idx->digest, tgt_idx->digest_size) != 0) {
+            char *pdigest = zck_get_chunk_digest(tgt_idx);
+            zck_log(ZCK_LOG_INFO,
+                    "Chunk imported from file has wrong digest, expected %s",
+                    pdigest ? pdigest : "<unknown>");
+            free(pdigest);
+            pdigest = get_digest_string(digest, tgt_idx->digest_size);
+            zck_log(ZCK_LOG_INFO, "Chunk file digest: %s",
+                    pdigest ? pdigest : "<unknown>");
+            free(pdigest);
+            if(!zck_zero_chunk(tgt, tgt_idx)) {
+                free(digest);
+                return false;
+            }
+            tgt_idx->valid = -1;
+        } else {
+            tgt_idx->valid = 1;
+            success = true;
+        }
+    }
+    free(digest);
+    return success;
+}
+
+bool ZCK_PUBLIC_API zck_import_chunk_from_path(zckCtx *tgt, zckChunk *tgt_idx,
+                                               const char *path) {
+    VALIDATE_BOOL(tgt);
+
+    if(tgt_idx == NULL || path == NULL) {
+        set_error(tgt, "Invalid chunk import arguments");
+        return false;
+    }
+
+    int fd = open(path, O_RDONLY | O_BINARY);
+    if(fd < 0) {
+        set_error(tgt, "Unable to open chunk file %s: %s", path, strerror(errno));
+        return false;
+    }
+    bool success = zck_import_chunk_from_fd(tgt, tgt_idx, fd);
+    close(fd);
+    return success;
 }
 
 /* Split current read into the appropriate chunks and write appropriately */
