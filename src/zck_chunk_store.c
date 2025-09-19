@@ -166,10 +166,6 @@ int main(int argc, char *argv[]) {
         LOG_ERROR("%s", zck_get_error(zck));
         exit(10);
     }
-    if(!zck_read_lead(zck) || !zck_read_header(zck)) {
-        LOG_ERROR("%s", zck_get_error(zck));
-        exit(10);
-    }
 
     const char *hash_name = zck_hash_name_from_type(zck_get_chunk_hash_type(zck));
     if(hash_name == NULL) {
