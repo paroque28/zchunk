@@ -1,0 +1,97 @@
+.\" Copyright (c) 2024  OpenAI Assistant
+.\" All rights reserved.
+.
+.Dd March 21, 2024
+.Dt ZCKDLFS 1
+.Os
+.Sh NAME
+.Nm zckdlfs
+.Nd reconstruct a zchunk file using a local chunk directory
+.Sh SYNOPSIS
+.Nm
+.Op Fl q | Fl -quiet
+.Op Fl s Ar file | Fl -source Ns = Ns Ar file
+.Op Fl v | Fl -verbose
+.Fl d Ar directory | Fl -chunk-dir Ns = Ns Ar directory
+.Ar zchunk
+.Nm
+.Fl ? | Fl -help | Fl -usage | Fl -version
+.Sh DESCRIPTION
+The
+.Nm
+utility fills the missing chunks of a partially available zchunk
+file by reading the compressed chunk payloads from a local directory
+tree.  The directory must be organised as described below.  This
+allows transporting chunk data using removable media instead of HTTP
+range requests while preserving the integrity checks performed by the
+zchunk format.
+.Pp
+The
+.Nm
+utility accepts the following optional arguments:
+.Bl -tag -width indent
+.It Fl q | Fl -quiet
+Quiet operation; only display warning and error messages.  If
+specified twice, only display error messages.
+.It Fl s | Fl -source
+Specify the file to use as a source with the premise that most of the
+chunks in the reconstructed file will be the same.
+.It Fl v , Fl -verbose
+Verbose operation; display some diagnostic output.
+.It Fl d | Fl -chunk-dir
+Directory containing compressed chunk files.  Each chunk is stored as
+an individual file named after its checksum.
+.It Fl ? , Fl -help
+Display program usage information and exit.
+.It Fl -usage
+Display brief program usage information and exit.
+.It Fl -version
+Display program version information and exit.
+.El
+.Sh CHUNK DIRECTORY LAYOUT
+The chunk directory is split by checksum type and digest prefix to
+keep the number of files per directory manageable.  The expected
+layout for a chunk with digest
+.Ar abcd Ns ...
+and hash type
+.Ar sha256
+is:
+.Bd -literal -offset indent
+<base>/<hash>/<prefix>/<digest>.chunk
+.Ed
+where
+.Ar <base>
+is the directory supplied with
+.Fl d ,
+.Ar <hash>
+is the lowercase chunk hash name reported by
+.Xr zck_read_header 1 ,
+.Ar <prefix>
+is the first two hexadecimal characters of the digest, and
+.Ar <digest>
+is the full chunk digest.
+.Pp
+The
+.Xr zck_chunk_store 1
+utility can populate a directory tree in this format from an existing
+zchunk file.
+.Sh EXIT STATUS
+.Ex -std
+.Sh EXAMPLES
+Rebuild an image from chunks provided on a USB drive:
+.Pp
+.Dl zckdlfs -d /mnt/usb/chunks -s old-image.zck new-image.zck
+.Sh SEE ALSO
+.Xr unzck 1 ,
+.Xr zck 1 ,
+.Xr zck_chunk_store 1 ,
+.Xr zck_delta_size 1 ,
+.Xr zck_gen_zdict 1 ,
+.Xr zck_read_header 1
+.Sh AUTHORS
+The
+.Nm
+utility was written by
+.An Jonathan Dieter Aq jdieter@gmail.com .
+The filesystem chunk support was contributed by
+.An OpenAI Assistant .

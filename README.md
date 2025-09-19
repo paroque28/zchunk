@@ -48,6 +48,22 @@ To download a zchunk file, run:
 zckdl -s <source> <url of target>
 ```
 
+To export the compressed chunks from a file for offline transport, run:
+```
+zck_chunk_store -o <chunk directory> <file.zck>
+```
+
+To reconstruct a zchunk file using chunks stored on local media, run:
+```
+zckdlfs -d <chunk directory> [-s <existing file>] <file.zck>
+```
+Chunk files are written beneath the chunk directory as
+`<directory>/<hash>/<prefix>/<digest>.chunk`, where `<hash>` is the chunk
+hash algorithm (for example `sha256`) and `<prefix>` is the first two
+characters of the hexadecimal digest.  Any directory created with
+`zck_chunk_store` can be copied to removable media and later consumed by
+`zckdlfs`.
+
 To read a zchunk header, run:
 ```
 zck_read_header <file>
