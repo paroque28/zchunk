@@ -1,0 +1,87 @@
+.\" Copyright (c) 2024  OpenAI Assistant
+.\" All rights reserved.
+.
+.Dd March 21, 2024
+.Dt ZCK_CHUNK_STORE 1
+.Os
+.Sh NAME
+.Nm zck_chunk_store
+.Nd export compressed chunks from a zchunk file
+.Sh SYNOPSIS
+.Nm
+.Op Fl q | Fl -quiet
+.Op Fl v | Fl -verbose
+.Fl o Ar directory | Fl -output Ns = Ns Ar directory
+.Ar zchunk
+.Nm
+.Fl ? | Fl -help | Fl -usage | Fl -version
+.Sh DESCRIPTION
+The
+.Nm
+utility extracts the compressed payload of every chunk from a zchunk
+file and writes it to a filesystem hierarchy suitable for use with
+.Xr zckdlfs 1 .
+.Pp
+The
+.Nm
+utility accepts the following optional arguments:
+.Bl -tag -width indent
+.It Fl q | Fl -quiet
+Quiet operation; only display warning and error messages.  If
+specified twice, only display error messages.
+.It Fl v , Fl -verbose
+Verbose operation; display some diagnostic output.
+.It Fl o | Fl -output
+Directory to populate with chunk files.  The directory will be created
+if necessary.
+.It Fl ? , Fl -help
+Display program usage information and exit.
+.It Fl -usage
+Display brief program usage information and exit.
+.It Fl -version
+Display program version information and exit.
+.El
+.Sh OUTPUT LAYOUT
+Each chunk is written as a separate file whose name is derived from the
+chunk digest.  The path for a chunk with digest
+.Ar abcd Ns ...
+and hash type
+.Ar sha256
+is:
+.Bd -literal -offset indent
+<base>/<hash>/<prefix>/<digest>.chunk
+.Ed
+where
+.Ar <base>
+is the directory supplied with
+.Fl o ,
+.Ar <hash>
+is the lowercase chunk hash name, and
+.Ar <prefix>
+is the first two hexadecimal characters of the digest.  The file
+contents are the compressed bytes that appear in the zchunk payload.
+.Pp
+This layout allows the chunk directory to be copied to removable media
+and later consumed by
+.Xr zckdlfs 1 .  Use
+.Xr zck_chunk_validate 1
+to verify the integrity of an existing chunk directory.
+.Sh EXIT STATUS
+.Ex -std
+.Sh EXAMPLES
+Populate a chunk directory for a previously downloaded image:
+.Pp
+.Dl zck_chunk_store -o /var/lib/zchunk/chunks updates/rootfs.zck
+.Sh SEE ALSO
+.Xr zck_chunk_validate 1 ,
+.Xr zckdlfs 1 ,
+.Xr unzck 1 ,
+.Xr zck 1 ,
+.Xr zck_delta_size 1 ,
+.Xr zck_gen_zdict 1 ,
+.Xr zck_read_header 1
+.Sh AUTHORS
+The
+.Nm
+utility was written by
+.An OpenAI Assistant .

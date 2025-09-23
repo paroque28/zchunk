@@ -1,0 +1,61 @@
+.\" Copyright (c) 2024  OpenAI Assistant
+.\" All rights reserved.
+.
+.Dd March 25, 2024
+.Dt ZCK_CHUNK_VALIDATE 1
+.Os
+.Sh NAME
+.Nm zck_chunk_validate
+.Nd verify exported zchunk chunk directories
+.Sh SYNOPSIS
+.Nm
+.Op Fl q | Fl -quiet
+.Op Fl v | Fl -verbose
+.Ar directory
+.Nm
+.Fl ? | Fl -help | Fl -usage | Fl -version
+.Sh DESCRIPTION
+The
+.Nm
+utility scans a directory tree containing compressed chunk payloads
+exported from a zchunk file and verifies that each chunk matches its
+expected checksum.  The directory must follow the layout produced by
+.Xr zck_chunk_store 1
+and consumed by
+.Xr zckdlfs 1 .
+.Pp
+The
+.Nm
+utility accepts the following optional arguments:
+.Bl -tag -width indent
+.It Fl q | Fl -quiet
+Quiet operation; only display warning and error messages.  If
+specified twice, only display error messages.
+.It Fl v , Fl -verbose
+Verbose operation; display additional diagnostic output.
+.It Fl ? , Fl -help
+Display program usage information and exit.
+.It Fl -usage
+Display brief program usage information and exit.
+.It Fl -version
+Display program version information and exit.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh EXAMPLES
+Check the integrity of chunk files copied from removable media:
+.Pp
+.Dl zck_chunk_validate /var/lib/zchunk/chunks
+.Sh SEE ALSO
+.Xr zck_chunk_store 1 ,
+.Xr zckdlfs 1 ,
+.Xr unzck 1 ,
+.Xr zck 1 ,
+.Xr zck_delta_size 1 ,
+.Xr zck_gen_zdict 1 ,
+.Xr zck_read_header 1
+.Sh AUTHORS
+The
+.Nm
+utility was written by
+.An OpenAI Assistant .

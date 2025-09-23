@@ -108,6 +108,27 @@ test(
         '-V'
     ]
 )
+test(
+    'check version info in zck_chunk_store',
+    zck_chunk_store,
+    args: [
+        '-V'
+    ]
+)
+test(
+    'check version info in zck_chunk_validate',
+    zck_chunk_validate,
+    args: [
+        '-V'
+    ]
+)
+test(
+    'check version info in zckdlfs',
+    zckdlfs,
+    args: [
+        '-V'
+    ]
+)
 
 test(
     'check opening file with optional flags',
